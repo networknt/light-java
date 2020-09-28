@@ -74,7 +74,8 @@
         <version.encoder>1.2.1</version.encoder>
         <version.logback>1.2.3</version.logback>
         <version.junit>4.12</version.junit>
-        <version.mockito>2.23.0</version.mockito>
+        <version.mockito>2.23.4</version.mockito>
+		<version.objenesis>3.0.1</version.objenesis>
         <version.powermock>2.0.2</version.powermock>
         <version.undertow>2.1.3.Final</version.undertow>
         <version.hamcrest>1.3</version.hamcrest>
@@ -101,6 +102,7 @@
         <version.maven-version>2.7</version.maven-version>
         <version.nexus-staging-maven>1.6.8</version.nexus-staging-maven>
         <version.maven-source>3.0.1</version.maven-source>
+        <version.maven-enforcer-plugin>3.0.0-M2</version.maven-enforcer-plugin>
         <version.maven-surefire>2.19.1</version.maven-surefire>
         <version.maven-failsafe>2.22.0</version.maven-failsafe>
         <version.jacoco>0.8.3</version.jacoco>
@@ -109,6 +111,8 @@
         <version.lifecycle-mapping>1.0.0</version.lifecycle-mapping>
         <version.maven-gpg>1.6</version.maven-gpg>
         <version.testcontainers>1.8.0</version.testcontainers>
+		<version.jna>4.5.1</version.jna>
+		<version.annotations>15.0</version.annotations>
         <version.jaeger>0.35.2</version.jaeger>
         <version.opentracing>0.32.0</version.opentracing>
         <skipTests>false</skipTests>
@@ -118,6 +122,7 @@
     </properties>
 
     <modules>
+        <module>bom</module>
         <module>config</module>
         <module>utility</module>
         <module>http-string</module>
@@ -166,219 +171,14 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Modules in this project -->
             <dependency>
                 <groupId>com.networknt</groupId>
-                <artifactId>config</artifactId>
+                <artifactId>light-4j-bom</artifactId>
                 <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>utility</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>http-string</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>http-url</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>security</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>audit</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>dump</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>info</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>health</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>logger-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>status</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>exception</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>body</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>header</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>mask</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>handler</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>metrics</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>sanitizer</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>traceability</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>correlation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>service</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>switcher</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>registry</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>balance</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>consul</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>zookeeper</artifactId>
-                <version>${project.version}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>cors</artifactId>
-                <version>${project.version}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>cluster</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>rate-limit</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>decryptor</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>email-sender</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>resource</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>content</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>data-source</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>basic-auth</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>deref-token</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>encode-decode</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>monad-result</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>server</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.networknt</groupId>
-                <artifactId>jaeger-tracing</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+
             <!-- External dependencies -->
 
             <dependency>
@@ -566,6 +366,14 @@
                 <version>${version.mockito}</version>
                 <scope>test</scope>
             </dependency>
+			<!-- This solves a version conflict in mockito-core's dependency tree. -->
+			<!-- Make sure this is the latest transitive version in mockito-core's dependency tree -->
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>${version.objenesis}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-mockito2</artifactId>
@@ -630,6 +438,22 @@
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers</artifactId>
                 <version>${version.testcontainers}</version>
+                <scope>test</scope>
+            </dependency>
+			<!-- This solves a version conflict in testcontainers' dependency tree. -->
+			<!-- Make sure this is the latest transitive version in testcontainers' dependency tree -->
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>${version.jna}</version>
+                <scope>test</scope>
+            </dependency>
+			<!-- This solves a version conflict in testcontainers' dependency tree. -->
+			<!-- Make sure this is the latest transitive version in testcontainers' dependency tree -->
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${version.annotations}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -725,6 +549,23 @@
                         <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${version.maven-enforcer-plugin}</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <rules>
+                                <dependencyConvergence/>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
                         </goals>
                     </execution>
                 </executions>
