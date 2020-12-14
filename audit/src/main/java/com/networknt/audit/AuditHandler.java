@@ -230,7 +230,11 @@ public class AuditHandler implements MiddlewareHandler {
         // Try to get BodyHandler cached request body string first to prevent unnecessary decoding
         String requestBodyString = exchange.getAttachment(AttachmentConstants.REQUEST_BODY_STRING);
         if (requestBodyString == null && exchange.getAttachment(AttachmentConstants.REQUEST_BODY) != null) {
-            requestBodyString = exchange.getAttachment(AttachmentConstants.REQUEST_BODY).toString();
+            try {
+                requestBodyString = Config.getInstance().getMapper().writeValueAsString(exchange.getAttachment(AttachmentConstants.REQUEST_BODY));
+            } catch (JsonProcessingException e) {
+                logger.error("cannot serialize request body");
+            }
         }
         // Mask requestBody json string if mask enabled
         if (requestBodyString != null) {
