@@ -66,10 +66,13 @@ public class Http2ClientConnectionPool {
         List<CachedConnection> result = connectionPool.get(uriString);
         if (result == null) {
             synchronized (Http2ClientConnectionPool.class) {
+                logger.info("Second try of getting connections for uri: {}", uriString);
                 result = connectionPool.get(uriString);
             }
         }
+        logger.info("Got {} connections for uri: {}", uriString, result != null ? result.size() : null);
         CachedConnection cachedConnection = selectConnection(uri, result, false);
+        logger.info("Got cached connection: {} for uri: {}", cachedConnection, uriString);
         if (cachedConnection != null) {
             hangConnection(uri, cachedConnection);
             return cachedConnection.get();
@@ -80,6 +83,7 @@ public class Http2ClientConnectionPool {
     public synchronized void cacheConnection(URI uri, ClientConnection connection) {
         CachedConnection cachedConnection = getAndRemoveClosedConnection(uri);
         if (cachedConnection == null || getConnectionStatus(uri, cachedConnection) != ConnectionStatus.MULTIPLEX_SUPPORT) {
+            logger.info("Cached connection: {} is either null or not support multiplex", cachedConnection);
             CachedConnection newConnection = new CachedConnection(connection);
             connectionPool.computeIfAbsent(uri.toString(), k -> new LinkedList<>()).add(newConnection);
             connectionCount.getAndIncrement();
@@ -97,6 +101,7 @@ public class Http2ClientConnectionPool {
                 result = connectionPool.get(uriString);
             }
         }
+        logger.info("Got {} cache connections for uri: {} from connectionPool", result != null ? result.size() : null, uriString);
         return selectConnection(uri, result, true);
     }
 
@@ -135,12 +140,15 @@ public class Http2ClientConnectionPool {
 
     private synchronized CachedConnection selectConnection(URI uri, List<CachedConnection> connections, boolean isRemoveClosedConnection) {
         if (connections != null) {
+            logger.info("Before removing max connections per host from list of {} connections for uri: {} ...", connections.size(), uri);
             if (connections.size() > ClientConfig.get().getMaxConnectionNumPerHost() * 0.75) {
                 while (connections.size() > ClientConfig.get().getMinConnectionNumPerHost() && connections.size() > 0) {
                     connections.remove(0);
                 }
             }
+            logger.info("After removing max connections per host from list of {} connections for uri: {} ...", connections.size(), uri);
             if (isRemoveClosedConnection) {
+                logger.info("Before removing the closed connections from list for uri: {} ...", uri);
                 Iterator<CachedConnection> iterator = connections.iterator();
                 while (iterator.hasNext()) {
                     CachedConnection connection = iterator.next();
@@ -154,8 +162,10 @@ public class Http2ClientConnectionPool {
                         }
                     }
                 }
+                logger.info("After removing closed connections, {} connections left in the list for uri: {}", connections.size(), uri);
             }
             if (connections.size() > 0) {
+                logger.info("Selecting a valid connections from cached {} connections for uri: {} ...", connections.size(), uri);
                 // Balance the selection of each connection
                 int randomInt = ThreadLocalRandom.current().nextInt(0, connections.size());
                 for (int i = 0; i < connections.size(); i++) {
@@ -163,9 +173,11 @@ public class Http2ClientConnectionPool {
                     ConnectionStatus status = getConnectionStatus(uri, connection);
                     // Return non-hanging connection
                     if (status == ConnectionStatus.AVAILABLE || status == ConnectionStatus.MULTIPLEX_SUPPORT) {
+                        logger.info("Found a valid connections with status: {} for uri: {}", status, uri);
                         return connection;
                     }
                 }
+                logger.info("None of the connection cached can be used for uri: {}", uri);
             }
         }
         return null;
@@ -209,8 +221,10 @@ public class Http2ClientConnectionPool {
             // Increase the request count for the connection for every invocation
             connection.incrementRequestCount();
             ConnectionStatus status = getConnectionStatus(uri, connection);
+            logger.info("Got connection status: {} for uri: {}", status, uri);
             // Hanging new or old Http/1.1 connection
             if ((status == null && !connection.isHttp2Connection()) || status == ConnectionStatus.AVAILABLE) {
+                logger.info("Setting connection status to HANGING in connectionStatusMap for uri: {}", uri);
                 connectionStatusMap.put(connection.get(), ConnectionStatus.HANGING);
             }
         }

@@ -201,6 +201,7 @@ public class ConsulRegistry extends CommandFailbackRegistry {
 
         if(logger.isTraceEnabled()) logger.trace("serviceName = " + serviceName + " lastConsulIndexId = " + lastConsulIndexId);
         ConsulResponse<List<ConsulService>> response = lookupConsulService(serviceName, lastConsulIndexId);
+        logger.info("Got ConsulResponse: {} from lookupConsulService({}, {})", response, serviceName, lastConsulIndexId);
         if(logger.isTraceEnabled()) {
             try {
                 logger.trace("response = " + Config.getInstance().getMapper().writeValueAsString(response));
@@ -212,6 +213,7 @@ public class ConsulRegistry extends CommandFailbackRegistry {
             if(logger.isDebugEnabled()) try {logger.debug("services = " + Config.getInstance().getMapper().writeValueAsString(services));} catch (Exception e) {}
             if (services != null && !services.isEmpty()
                     && response.getConsulIndex() > lastConsulIndexId) {
+                logger.info("Got {} updated urls for service: {}", services.size(), serviceName);
                 for (ConsulService service : services) {
                     try {
                         URL url = ConsulUtils.buildUrl(protocol, service);
@@ -227,6 +229,7 @@ public class ConsulRegistry extends CommandFailbackRegistry {
                     }
                 }
                 lookupServices.put(serviceName, response.getConsulIndex());
+                logger.info("Service {} consul index {} put into lookupServices", serviceName, response.getConsulIndex());
                 return serviceUrls;
             } else if (response.getConsulIndex() < lastConsulIndexId) {
                 logger.info(serviceName + "  lastIndex:" + lastConsulIndexId + "; response consul Index:" + response.getConsulIndex());
@@ -301,9 +304,13 @@ public class ConsulRegistry extends CommandFailbackRegistry {
             logger.info("start service lookup thread. lookup interval: " + lookupInterval + "ms, service: " + serviceName);
             while (true) {
                 try {
+                    logger.info("Start to sleep {} ms for the next lookupServiceUpdate", lookupInterval);
                     sleep(lookupInterval);
+                    logger.info("Woke up from the sleep for the next lookupServiceUpdate");
                     ConcurrentHashMap<String, List<URL>> serviceUrls = lookupServiceUpdate(protocol, serviceName);
+                    logger.info("Got {} serviceUrls from lookupServiceUpdate", serviceUrls.size());
                     updateServiceCache(serviceName, serviceUrls, true);
+                    logger.info("Service cache updated with the serviceUrls from lookupServiceUpdate");
                 } catch (Throwable e) {
                     logger.error("service lookup thread fail!", e);
                     try {
